@@ -1,3 +1,133 @@
 [gd_scene format=3 uid="uid://bwnho8gkdng11"]
 
+[ext_resource type="Script" uid="uid://bneqindpbs4h2" path="res://scenes/player.gd" id="1_nnsk1"]
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_m1qqx"]
+
+[sub_resource type="Sky" id="Sky_e5uuo"]
+sky_material = SubResource("PhysicalSkyMaterial_m1qqx")
+
+[sub_resource type="Environment" id="Environment_2gkcy"]
+background_mode = 2
+sky = SubResource("Sky_e5uuo")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_2gkcy"]
+size = Vector2(100, 100)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2gkcy"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_2gkcy"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_il4nn"]
+size = Vector3(100, 0.2, 100)
+
+[sub_resource type="Gradient" id="Gradient_nnsk1"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_rwgxs"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_4wyf3"]
+noise = SubResource("FastNoiseLite_rwgxs")
+color_ramp = SubResource("Gradient_nnsk1")
+seamless = true
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_k0juu"]
+_shader_parameters = {
+&"bias_distance": null,
+&"blend_sharpness": null,
+&"depth_blur": null,
+&"enable_macro_variation": null,
+&"enable_projection": null,
+&"flat_terrain_normals": null,
+&"macro_variation1": null,
+&"macro_variation2": null,
+&"macro_variation_slope": null,
+&"mipmap_bias": null,
+&"noise1_angle": null,
+&"noise1_offset": null,
+&"noise1_scale": null,
+&"noise2_scale": null,
+&"noise_texture": SubResource("NoiseTexture2D_4wyf3"),
+&"projection_threshold": null
+}
+show_checkered = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_71j4m"]
+transparency = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+backlight_enabled = true
+backlight = Color(0.5, 0.5, 0.5, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 128.0
+distance_fade_max_distance = 96.0
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_qfnet"]
+generated_type = 1
+height_offset = 0.5
+material_override = SubResource("StandardMaterial3D_71j4m")
+last_lod = 0
+last_shadow_lod = 0
+lod0_range = 128.0
+
+[sub_resource type="Terrain3DAssets" id="Terrain3DAssets_i7141"]
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_qfnet")])
+
 [node name="World" type="Node3D" unique_id=719684734]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=257740965]
+environment = SubResource("Environment_2gkcy")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=718945334]
+transform = Transform3D(0.8660254, 0.3535534, -0.3535534, 0, 0.7071068, 0.7071068, 0.5, -0.61237246, 0.61237246, 0, 0, 0)
+
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=283319338]
+transform = Transform3D(5, 0, 0, 0, 1, 0, 0, 0, 5, 0, 0, 0)
+mesh = SubResource("PlaneMesh_2gkcy")
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=1445175296]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("1_nnsk1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=1224956967]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.09499669, 0, -0.1805358)
+shape = SubResource("CapsuleShape3D_2gkcy")
+
+[node name="CameraRig" type="SpringArm3D" parent="Player" unique_id=1365769918]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+spring_length = 6.0
+
+[node name="Camera3D" type="Camera3D" parent="Player/CameraRig" unique_id=991942872]
+current = true
+
+[node name="body" type="MeshInstance3D" parent="Player" unique_id=1669300797]
+mesh = SubResource("CapsuleMesh_2gkcy")
+
+[node name="Groundcollision" type="StaticBody3D" parent="." unique_id=1152937472]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Groundcollision" unique_id=929188317]
+shape = SubResource("BoxShape3D_il4nn")
+
+[node name="Terrain3D" type="Terrain3D" parent="." unique_id=1657498662]
+data_directory = "res://assets/terrain"
+material = SubResource("Terrain3DMaterial_k0juu")
+assets = SubResource("Terrain3DAssets_i7141")
+show_checkered = true
+top_level = true
+metadata/_edit_lock_ = true
